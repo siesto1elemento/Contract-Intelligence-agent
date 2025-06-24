@@ -17,11 +17,10 @@ async def upload_file(file: UploadFile = File(...)):
             contents = await file.read()
             f.write(contents)
 
-        summary = summarize_whole(file_location)
-        embedding = rag_embedding(file_location)
+        summary = await summarize_whole(file_location)
 
         return JSONResponse(
-            content={"filename": file.filename, "message": "Upload successful"},
+            content={"filename": file.filename, "summary": summary, "message": "Upload successful"},
             status_code=200,
         )
     except Exception as e:

@@ -2,23 +2,23 @@ import openparse
 import faiss
 import numpy as np
 import pickle
-from openai import OpenAI
+from openai import AsyncOpenAI
 from dotenv import load_dotenv
 
 
-def summarize_chunk(text, idx=None):
+async def summarize_chunk(text, idx=None):
 
     load_dotenv()
 
     # Create the client with API key
-    client = OpenAI()
+    client = AsyncOpenAI()
 
     prompt = f"""Summarize the following section of a legal contract in 2-3 bullet points. Focus on obligations, durations, risks, or key terms.
 
 {text}
 """
     try:
-        response = client.chat.completions.create(
+        response = await client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {
@@ -35,11 +35,11 @@ def summarize_chunk(text, idx=None):
         return None
 
 
-def summarize_whole(path):
+async def summarize_whole(path):
     load_dotenv()
 
     # Create the client with API key
-    client = OpenAI()
+    client = AsyncOpenAI()
 
     basic_doc_path = path
     parser = openparse.DocumentParser()
@@ -60,7 +60,7 @@ def summarize_whole(path):
     {final_summary}
     """
 
-    refined = client.chat.completions.create(
+    refined = await client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {
@@ -72,4 +72,4 @@ def summarize_whole(path):
         temperature=0.3,
     )
 
-    print("\n📋 Final Refined Summary:\n", refined.choices[0].message.content.strip())
+    return refined.choices[0].message.content.strip()

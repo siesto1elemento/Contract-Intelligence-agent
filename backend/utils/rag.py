@@ -2,15 +2,15 @@ import os
 import pickle
 import faiss
 import numpy as np
-from openai import OpenAI
+from openai import AsyncOpenAI
 from dotenv import load_dotenv
 from openparse import processing, DocumentParser
 
 
-def rag_embedding(path: str):
+async def rag_embedding(path: str):
 
     load_dotenv()
-    client = OpenAI()
+    client = AsyncOpenAI()
 
     semantic_pipeline = processing.SemanticIngestionPipeline(
         openai_api_key=os.getenv("OPENAI_API_KEY"),
@@ -26,11 +26,9 @@ def rag_embedding(path: str):
     nodes_text = []
 
     for idx, node in enumerate(parsed_content.nodes):
-        # print(f"Node {idx}------------------------")
-        # print(node.text)
         nodes_text.append(node.text)
 
-    response = client.embeddings.create(
+    response = await client.embeddings.create(
         input=nodes_text, model="text-embedding-3-small"
     )
 
@@ -45,17 +43,4 @@ def rag_embedding(path: str):
     faiss.write_index(index, "index.faiss")
 
 
-#     query = "what is the leave policy"
-#     query_response = client.embeddings.create(
-#     input=query,
-#     model="text-embedding-3-small"
-# )
 
-
-#     query_embedding = query_response.data[0].embedding
-#     D, I = index.search(np.array([query_embedding]).astype('float32'), k=3)
-
-#     for idx in I[0]:
-#         print(f"{idx}-----------------------")
-#         node = nodes_text[idx]
-#         print(node)
